@@ -11,9 +11,8 @@ object SknnBuild extends Build {
     lazy val depProject = RootProject(uri("git://github.com/pelotom/effectful.git#%s".format(V.depProject)))
   }
 
-  lazy val javaOpts = Seq("-Xms2584M", "-XX:+PrintGC")
 
-  val simple = Project.defaultSettings ++ Seq(scalaVersion := "2.11.6", version := "1.0", fork in run := true, javaOptions in run ++= javaOpts, resolvers ++= res, libraryDependencies ++= libDeps)
+  val simple = Project.defaultSettings ++ Seq(scalaVersion := "2.11.6", version := "1.0", fork in run := true, resolvers ++= res, libraryDependencies ++= libDeps)
 
   val libDeps = Seq(
     "org.scalaz" %% "scalaz-core" % "7.1.3",
