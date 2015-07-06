@@ -1,8 +1,6 @@
 package io.eanoble.sknn
 
 import spire.implicits._
-
-import scala.language.postfixOps
 import scalaz.concurrent.Task
 import scalaz.stream._
 
@@ -32,6 +30,7 @@ object Main extends App {
     else 0
   }
 
+  // Getting rid of the label at the top
   val training = io.linesR("training.csv").drop(1)
   val validation = io.linesR("validation.csv").drop(1)
 
@@ -47,6 +46,8 @@ object Main extends App {
   val trainingSet = parseStream(training).runLog.run.toArray
   val validationSet = parseStream(validation)
 
-  println(validationSet.map(v => checkCorrect(trainingSet, v)).runLog.run.sum)
+  val streamingResults = validationSet.map(v => checkCorrect(trainingSet, v)).sum.map(_.toString)
+
+  (streamingResults to io.stdOutLines).run.run
 
 }
