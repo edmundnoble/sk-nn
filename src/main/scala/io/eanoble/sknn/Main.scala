@@ -13,13 +13,9 @@ object Main extends App {
   def classify(o: Seq[Observation], f: Array[Int]): String = {
     o.par.reduce[Observation] { (a, b) =>
       val firstDist = dist(f, a.features)
-      if (firstDist == 0) {
-        a
-      } else {
-        val secondDist = dist(f, b.features)
-        if (firstDist > secondDist) b
-        else a
-      }
+      val secondDist = dist(f, b.features)
+      if (firstDist > secondDist) b
+      else a
     }.label
   }
 
@@ -31,10 +27,10 @@ object Main extends App {
     sum
   }
 
-  def checkCorrect(obs: Array[Observation], c: Observation): Task[Int] = (Task {
+  def checkCorrect(obs: Array[Observation], c: Observation): Int = {
     if (c.label == classify(obs, c.features)) 1
     else 0
-  })
+  }
 
   val training = io.linesR("training.csv").drop(1)
   val validation = io.linesR("validation.csv").drop(1)
@@ -51,6 +47,6 @@ object Main extends App {
   val trainingSet = parseStream(training).runLog.run.toArray
   val validationSet = parseStream(validation)
 
-  println(validationSet.evalMap(v => checkCorrect(trainingSet, v)).runLog.run.sum)
+  println(validationSet.map(v => checkCorrect(trainingSet, v)).runLog.run.sum)
 
 }
