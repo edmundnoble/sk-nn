@@ -8,13 +8,8 @@ object Main extends App {
 
   case class Observation(label: String, features: Array[Int])
 
-  def classify(o: Seq[Observation], f: Array[Int]): String = {
-    o.par.reduce[Observation] { (a, b) =>
-      val firstDist = dist(f, a.features)
-      val secondDist = dist(f, b.features)
-      if (firstDist > secondDist) b
-      else a
-    }.label
+  def classify(o: Array[Observation], f: Array[Int]): String = {
+    o.par.map(ob => (ob.label, dist(f, ob.features))).minBy(_._2)._1
   }
 
   def dist(xs: Array[Int], ys: Array[Int]): Int = {
@@ -46,7 +41,7 @@ object Main extends App {
   val trainingSet = parseStream(training).runLog.run.toArray
   val validationSet = parseStream(validation)
 
-  val streamingResults = validationSet.map(v => checkCorrect(trainingSet, v)).sum.map(_.toString)
+  val streamingResults = validationSet.map(v => checkCorrect(trainingSet, v)).sum.map(s => (s / 500.0).toString)
 
   (streamingResults to io.stdOutLines).run.run
 
